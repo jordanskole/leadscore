@@ -8,6 +8,9 @@ var parseString = require('xml2js').parseString;
 var keys = ['kjweh', 'i2duy3', '29yd'];
 
 
+// Serve static content for the app from the "public" directory in the application directory.
+app.use(express.static(__dirname + '/public'));
+
 // do our super simple authentication to prevent randos from spending our $.
 app.use(function(req, res, next) {
   if(!_.contains(keys, req.query.key)) {
