@@ -14,8 +14,8 @@ app.use(function(req, res, next) {
     res.status(401).json({error: 'Key missing or incorrect'});
   } else if(typeof req.query.domain === 'undefined') {
     res.status(400).json({error: 'Domain is a required parameter'});
-  } else if(typeof req.query.rg === 'undefined') {
-    res.status(400).json({error: 'ResponseGroup is a required parameter'});
+  // } else if(typeof req.query.rg === 'undefined') {
+  //   res.status(400).json({error: 'ResponseGroup is a required parameter'});
   } else {
     next();
   }
@@ -27,12 +27,46 @@ app.get('/', function(req, res){
 });
 
 app.get('/UrlInfo', function(req, res) {
-  var responsegroups = ['RelatedLinks', 'Categories', 'Rank', 'RankByCountry', ]
+  // use this to validate that a
+  var responsegroups = ['RelatedLinks', 'Categories', 'Rank', 'RankByCountry', 'RankByCity', 'UsageStats','ContactInfo', 'Speed', 'Keywords', 'OwnedDomains', 'LinksInCount','SiteData'];
   request = alexa.makeRequest('UrlInfo', req.query.domain, req.query.rg);
   alexa.get(request, function(err, results){
     if(!err) {
       parseString(results.body, function(err, body){
         res.send(body);
+      });
+    }
+  });
+});
+
+app.get('/simple', function(req, res) {
+  request = alexa.makeRequest('UrlInfo', req.query.domain, 'RelatedLinks,Categories,Rank,RankByCountry,RankByCity,UsageStats,ContactInfo,Speed,Keywords,OwnedDomains,LinksInCount,SiteData');
+  alexa.get(request, function(err, results){
+    if(!err) {
+      parseString(results.body, function(err, body){
+        // make the data more meaningful
+        var response = new Object;
+        response.contactInfo = {};
+
+        // contact info
+        response.contactInfo.dataUrl = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:ContactInfo"][0]["aws:DataUrl"][0]["_"];
+        response.contactInfo.phoneNumber = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:ContactInfo"][0]["aws:PhoneNumbers"][0]["aws:PhoneNumbers"];
+        response.contactInfo.ownerName = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:ContactInfo"][0]["aws:OwnerName"][0];
+        response.contactInfo.email = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:ContactInfo"][0]["aws:Email"][0];
+        if(typeof body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:ContactInfo"][0]["aws:CompanyStockTicker"][0]["aws:Symbol"] !== "undefined") {
+          response.contactInfo.public = true;
+        } else {
+          response.contactInfo.public = false;
+        }
+
+        // content data
+
+        // related
+
+        // traffic data
+        response.trafficData = {};
+        response.trafficData.awsRank = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:TrafficData"][0]["aws:Rank"][0];
+        res.json(response);
       });
     }
   });
