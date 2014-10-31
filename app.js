@@ -6,6 +6,8 @@ var bw = require('./builtwith.js');
 var _ = require('underscore');
 var parseString = require('xml2js').parseString;
 var keys = ['kjweh', 'i2duy3', '29yd'];
+var Mozscape = require('mozscape').Mozscape;
+var moz = new Mozscape('member-eebb773aa6', '13c3aeb4a0d899ffff434213a1a0d9df');
 
 
 // Serve static content for the app from the "public" directory in the application directory.
@@ -33,23 +35,60 @@ app.get('/UrlInfo', function(req, res) {
   // use this to validate that a
   var responsegroups = ['RelatedLinks', 'Categories', 'Rank', 'RankByCountry', 'RankByCity', 'UsageStats','ContactInfo', 'Speed', 'Keywords', 'OwnedDomains', 'LinksInCount','SiteData'];
   request = alexa.makeRequest('UrlInfo', req.query.domain, req.query.rg);
-  alexa.get(request, function(err, results){
+
+  // alexa.get(request, function(err, results){
+  //   if(!err) {
+  //     parseString(results.body, function(err, body){
+  //       res.send(body);
+  //     });
+  //   }
+  // });
+
+});
+
+app.get('/UrlMetrics', function(req, res){
+
+  // use this to check Moz URL Metrics
+  // https://github.com/scott-wyatt/node-mozscape/blob/master/lib/mozscape.js#L225
+  var cols = ['mozRank','mozTrust','page_authority','domain_authority'];
+  moz.urlMetrics(req.query.domain, cols, function(err, results){
+    // if no errors
     if(!err) {
-      parseString(results.body, function(err, body){
-        res.send(body);
-      });
+
+      // build a response for humans from the moz response based on the mozbar
+      response = {};
+      response.mozRank = results.umrp.toFixed(2);
+      response.mozTrust = results.utrp.toFixed(2);
+      response.pageAuthority = results.upa.toFixed(0);
+      response.domainAuthority = results.pda.toFixed(0);
+
+      // send the response
+      res.send(response);
+
+    } else {
+      // log the error to console
+      console.log(err);
+      // and respond with an error saying something is wrong
+      res.send(JSON.stringify(err));
     }
   });
-});
+
+})
 
 app.get('/simple', function(req, res) {
   request = alexa.makeRequest('UrlInfo', req.query.domain, 'RelatedLinks,Categories,Rank,RankByCountry,RankByCity,UsageStats,ContactInfo,Speed,Keywords,OwnedDomains,LinksInCount,SiteData');
+
+  var response = new Object;
+  response.contactInfo = {};
+  response.trafficData = {};
+  response.moz = {};
+
+  // do alexa first
   alexa.get(request, function(err, results){
     if(!err) {
       parseString(results.body, function(err, body){
         // make the data more meaningful
-        var response = new Object;
-        response.contactInfo = {};
+        console.log(response);
 
         // contact info
         response.contactInfo.dataUrl = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:ContactInfo"][0]["aws:DataUrl"][0]["_"];
@@ -67,12 +106,39 @@ app.get('/simple', function(req, res) {
         // related
 
         // traffic data
-        response.trafficData = {};
         response.trafficData.awsRank = body["aws:UrlInfoResponse"]["aws:Response"][0]["aws:UrlInfoResult"][0]["aws:Alexa"][0]["aws:TrafficData"][0]["aws:Rank"][0];
-        res.json(response);
-      });
+
+
+        // use this to check Moz URL Metrics
+        // https://github.com/scott-wyatt/node-mozscape/blob/master/lib/mozscape.js#L225
+        var cols = ['mozRank','mozTrust','page_authority','domain_authority'];
+        moz.urlMetrics(req.query.domain, cols, function(err, results){
+          // if no errors
+          if(!err) {
+
+            // build a response for humans from the moz response based on the mozbar
+            response.moz.mozRank = results.umrp.toFixed(2);
+            response.moz.mozTrust = results.utrp.toFixed(2);
+            response.moz.pageAuthority = results.upa.toFixed(0);
+            response.moz.domainAuthority = results.pda.toFixed(0);
+
+            // send the response
+            res.send(response);
+
+          } else {
+            // log the error to console
+            console.log(err);
+            // and respond with an error saying something is wrong
+            res.send(JSON.stringify(err));
+          }
+        });
+      }); //!err
+
     }
-  });
+  }); // alexa.get
+
+
+
 });
 
 app.get('/TrafficHistory', function(req, res) {

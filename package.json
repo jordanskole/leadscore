@@ -4,10 +4,10 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "4.x",
     "alexa": "0.0.1-e",
+    "express": "4.x",
+    "mozscape": "^0.1.1",
     "underscore": "^1.7.0",
-    "linkscape": "^0.1.2",
     "xml2js": "^0.4.4"
   },
   "devDependencies": {
