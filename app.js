@@ -5,7 +5,7 @@ var alexa = new alexaAPI('AKIAJJWTNFVUYX6BWIBA', 'd1OIz9p6AZLg3BjK2Xl3Ls1IXq4uCG
 var bw = require('./builtwith.js');
 var _ = require('underscore');
 var parseString = require('xml2js').parseString;
-var keys = ['kjweh', 'i2duy3', '29yd'];
+var keys = process.env.SECRET_KEYS.split(',');
 var Mozscape = require('mozscape').Mozscape;
 var moz = new Mozscape('member-eebb773aa6', '13c3aeb4a0d899ffff434213a1a0d9df');
 
