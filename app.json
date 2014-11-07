@@ -1,0 +1,32 @@
+{
+  "name": "Simple Lead Scoring",
+  "description": "This app fetches information about a given domain.",
+  "keywords": [
+    "alexa",
+    "moz api",
+    "lead score"
+  ],
+  "website": "https://getambassador.com/",
+  "env": {
+    "SECRET_KEYS": {
+      "description": "A comma seperated list of secret keys used to secure your application.",
+      "generator": "secret"
+    },
+    "MOZ_ACCESS_ID": {
+      "description": "Your MOZ API Access ID.",
+      "value": "5"
+    },
+    "MOZ_SECRET": {
+      "description": "Your MOZ API Secret Key.",
+      "value": "5"
+    },
+    "ALEXA_ID": {
+      "description": "Your Alexa API Access Key.",
+      "value": "5"
+    },
+    "ALEXA_SECRET": {
+      "description": "Your Alexa API Secret Key.",
+      "value": "5"
+    },
+  }
+}
