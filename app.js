@@ -1,13 +1,13 @@
 var express = require('express');
 var app = express();
 var alexaAPI = require('alexa');
-var alexa = new alexaAPI('AKIAJJWTNFVUYX6BWIBA', 'd1OIz9p6AZLg3BjK2Xl3Ls1IXq4uCGSjB+xAgLWY');
+var alexa = new alexaAPI(process.env.ALEXA_ID, process.env.ALEXA_SECRET);
 var bw = require('./builtwith.js');
 var _ = require('underscore');
 var parseString = require('xml2js').parseString;
 var keys = process.env.SECRET_KEYS.split(',');
 var Mozscape = require('mozscape').Mozscape;
-var moz = new Mozscape('member-eebb773aa6', '13c3aeb4a0d899ffff434213a1a0d9df');
+var moz = new Mozscape(process.env.MOZ_ACCESS_ID, process.env.MOZ_SECRET);
 
 
 // Serve static content for the app from the "public" directory in the application directory.
